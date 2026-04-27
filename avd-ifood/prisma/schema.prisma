@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       String   @default("COLABORADOR") // COLABORADOR | LIDER | ADMIN
+  department String?
+  jobTitle   String?
+  isLeader   Boolean  @default(false)
+  managerId  String?
+  manager    User?    @relation("Reports", fields: [managerId], references: [id])
+  reports    User[]   @relation("Reports")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  evaluationsGiven    Evaluation[]  @relation("Evaluator")
+  evaluationsReceived Evaluation[]  @relation("Evaluatee")
+  onaFrom             ONAResponse[] @relation("ONAFrom")
+  onaTo               ONAResponse[] @relation("ONATo")
+}
+
+model EvaluationCycle {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  status      String   @default("DRAFT") // DRAFT | ACTIVE | CLOSED
+  createdAt   DateTime @default(now())
+
+  evaluations  Evaluation[]
+  onaResponses ONAResponse[]
+}
+
+model Evaluation {
+  id          String          @id @default(cuid())
+  cycleId     String
+  cycle       EvaluationCycle @relation(fields: [cycleId], references: [id])
+  evaluatorId String
+  evaluator   User            @relation("Evaluator", fields: [evaluatorId], references: [id])
+  evaluateeId String
+  evaluatee   User            @relation("Evaluatee", fields: [evaluateeId], references: [id])
+  type        String          // SELF | PEER | SUBORDINATE | LEADER
+  status      String          @default("PENDING") // PENDING | IN_PROGRESS | COMPLETED
+  createdAt   DateTime        @default(now())
+  completedAt DateTime?
+
+  responses EvaluationResponse[]
+}
+
+model EvaluationResponse {
+  id            String     @id @default(cuid())
+  evaluationId  String
+  evaluation    Evaluation @relation(fields: [evaluationId], references: [id])
+  dimension     String     // CULTURA | PERFORMANCE | IA | LIDERANCA
+  attribute     String     // attribute key
+  score         Int        // 1-5
+  justification String?
+  createdAt     DateTime   @default(now())
+}
+
+model ONAResponse {
+  id             String          @id @default(cuid())
+  cycleId        String
+  cycle          EvaluationCycle @relation(fields: [cycleId], references: [id])
+  respondentId   String
+  respondent     User            @relation("ONAFrom", fields: [respondentId], references: [id])
+  collaboratorId String
+  collaborator   User            @relation("ONATo", fields: [collaboratorId], references: [id])
+  frequency      Int             // 1-5
+  influence      Int             // 1-5
+  types          String          // JSON-serialized string[]
+  createdAt      DateTime        @default(now())
+
+  @@unique([cycleId, respondentId, collaboratorId])
+}

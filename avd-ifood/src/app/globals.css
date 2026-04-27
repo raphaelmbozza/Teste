@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F8F8F8;
+  --foreground: #1A1A1A;
+  --ifood-red: #E5302F;
+  --ifood-red-dark: #C0272D;
+  --ifood-red-light: #FDE8E8;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ifood-red: var(--ifood-red);
+  --color-ifood-red-dark: var(--ifood-red-dark);
+  --color-ifood-red-light: var(--ifood-red-light);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+}

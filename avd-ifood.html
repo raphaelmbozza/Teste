@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AvD iFood — Avaliação de Desempenho</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#F8F8F8;color:#1A1A1A;min-height:100vh}
+a{text-decoration:none;color:inherit;cursor:pointer}
+button{cursor:pointer;font-family:inherit}
+input,textarea,select{font-family:inherit}
+
+/* NAV */
+#navbar{background:#fff;border-bottom:1px solid #E5E7EB;position:sticky;top:0;z-index:100;display:none}
+.nav-inner{max-width:900px;margin:0 auto;padding:0 16px;height:52px;display:flex;align-items:center;gap:8px}
+.nav-logo{display:flex;align-items:center;gap:8px;margin-right:auto}
+.nav-logo-icon{width:32px;height:32px;border-radius:50%;background:#E5302F;color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center}
+.nav-logo-text{font-weight:800;font-size:14px}
+.nav-link{padding:6px 12px;border-radius:8px;font-size:13px;font-weight:600;color:#6B7280;background:none;border:none;transition:background .15s}
+.nav-link:hover{background:#F3F4F6}
+.nav-link.active{background:#E5302F;color:#fff}
+.nav-user{font-size:12px;font-weight:600;color:#6B7280;white-space:nowrap}
+.nav-logout{background:none;border:none;font-size:12px;color:#9CA3AF;font-weight:500;margin-left:8px;padding:4px 8px;border-radius:6px}
+.nav-logout:hover{color:#E5302F}
+
+/* LAYOUT */
+.screen{display:none}
+.container{max-width:900px;margin:0 auto;padding:24px 16px}
+
+/* CARDS */
+.card{background:#fff;border-radius:16px;border:1px solid #E5E7EB;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.card-sm{padding:14px 16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:600px){.grid-4{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:10px;font-weight:700;font-size:14px;border:none;transition:opacity .15s}
+.btn:disabled{opacity:.4;cursor:default}
+.btn-primary{background:#E5302F;color:#fff}
+.btn-primary:hover:not(:disabled){opacity:.88}
+.btn-outline{background:#fff;color:#E5302F;border:2px solid #E5302F}
+.btn-outline:hover{background:#FDE8E8}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:8px}
+.btn-ghost{background:none;border:none;color:#6B7280;font-size:13px;font-weight:500}
+.btn-ghost:hover{color:#E5302F}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700}
+
+/* INPUTS */
+.input{width:100%;border:1.5px solid #E5E7EB;border-radius:10px;padding:10px 14px;font-size:14px;outline:none;transition:border-color .15s}
+.input:focus{border-color:#E5302F}
+.label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:4px}
+.form-group{margin-bottom:16px}
+
+/* STAT */
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:16px;text-align:center}
+.stat-val{font-size:28px;font-weight:900;line-height:1}
+.stat-lbl{font-size:12px;color:#6B7280;margin-top:4px}
+
+/* EVAL LIST ITEM */
+.eval-item{background:#fff;border-radius:12px;border:1.5px solid #E5E7EB;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.eval-item:hover{border-color:#E5302F;box-shadow:0 2px 8px rgba(229,48,47,.12)}
+.eval-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+.eval-info{flex:1;min-width:0}
+.eval-name{font-weight:700;font-size:14px}
+.eval-sub{font-size:12px;color:#6B7280;margin-top:1px}
+.eval-done{opacity:.6;cursor:default}
+.eval-done:hover{border-color:#E5E7EB;box-shadow:none}
+
+/* SCALE PICKER */
+.scale-grid{display:flex;gap:6px;flex-wrap:wrap}
+.scale-btn{flex:1;min-width:90px;padding:10px 6px;border-radius:10px;border:2px solid;font-weight:700;font-size:11px;text-align:center;line-height:1.3;transition:all .12s;cursor:pointer}
+
+/* PROGRESS */
+.progress-bar{width:100%;background:#F3F4F6;border-radius:99px;height:10px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;transition:width .4s}
+
+/* DIMENSION TABS */
+.dim-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px}
+.dim-tab{flex-shrink:0;padding:8px 16px;border-radius:10px;border:2px solid;font-size:13px;font-weight:700;cursor:pointer;transition:all .12s;white-space:nowrap}
+
+/* RADAR CHART */
+.radar-wrap{display:flex;justify-content:center;margin:16px 0}
+
+/* ONA */
+.ona-card{background:#fff;border-radius:12px;border:2px solid #E5E7EB;padding:16px;transition:border-color .15s}
+.ona-card.active{border-color:#E5302F}
+.freq-btns{display:flex;gap:4px}
+.freq-btn{flex:1;height:32px;border-radius:8px;border:2px solid #E5302F;background:#FDE8E8;color:#E5302F;font-weight:700;font-size:12px;cursor:pointer;transition:all .12s}
+.freq-btn.sel{background:#E5302F;color:#fff}
+.inf-btn{flex:1;height:32px;border-radius:8px;border:2px solid #0EA5E9;background:#E0F2FE;color:#0EA5E9;font-weight:700;font-size:12px;cursor:pointer;transition:all .12s}
+.inf-btn.sel{background:#0EA5E9;color:#fff}
+.type-btn{padding:4px 10px;border-radius:99px;border:2px solid #7C3AED;background:#F3F0FF;color:#7C3AED;font-size:11px;font-weight:700;cursor:pointer;transition:all .12s}
+.type-btn.sel{background:#7C3AED;color:#fff}
+
+/* RESULTS */
+.result-attr{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:16px;margin-bottom:10px}
+
+/* ADMIN TABLE */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;font-weight:600;color:#6B7280;border-bottom:1px solid #E5E7EB}
+td{padding:8px 10px;border-bottom:1px solid #F9FAFB}
+tr:last-child td{border-bottom:none}
+
+/* LOGIN */
+#screen-login{min-height:100vh;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,#E5302F 0%,#C0272D 55%,#1A1A1A 100%)}
+.login-box{background:#fff;border-radius:20px;padding:36px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-icon{width:56px;height:56px;border-radius:50%;background:#E5302F;color:#fff;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.login-title{font-size:22px;font-weight:900;color:#1A1A1A}
+.login-sub{font-size:13px;color:#6B7280;margin-top:4px}
+.demo-hints{margin-top:20px;background:#F9FAFB;border-radius:10px;padding:12px;font-size:12px}
+.demo-hints p{color:#6B7280;margin-bottom:6px;font-weight:600}
+.demo-row{display:flex;justify-content:space-between;padding:3px 0;color:#6B7280}
+.demo-email{color:#E5302F;font-weight:600;cursor:pointer}
+.demo-email:hover{text-decoration:underline}
+
+/* ALERT */
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:12px}
+.alert-error{background:#FEE2E2;color:#B91C1C;border:1px solid #FECACA}
+.alert-ok{background:#DCFCE7;color:#15803D;border:1px solid #BBF7D0}
+
+/* misc */
+.section-title{font-size:17px;font-weight:800;color:#1A1A1A;margin-bottom:14px}
+.empty{text-align:center;padding:48px 16px;color:#9CA3AF}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.flex-between{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.mt-4{margin-top:16px}
+.mt-6{margin-top:24px}
+.gap-3{display:flex;flex-direction:column;gap:10px}
+.text-muted{color:#6B7280;font-size:13px}
+.divider{height:1px;background:#F3F4F6;margin:16px 0}
+
+/* Scroll nav on mobile */
+@media(max-width:520px){.nav-inner{gap:2px}.nav-link{padding:5px 7px;font-size:12px}}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="nav-logo-icon">iF</div>
+      <span class="nav-logo-text">AvD iFood</span>
+    </div>
+    <button class="nav-link" onclick="A.nav('dashboard')" id="nl-dashboard">Início</button>
+    <button class="nav-link" onclick="A.nav('ona')" id="nl-ona">Rede ONA</button>
+    <button class="nav-link" onclick="A.nav('results')" id="nl-results">Resultados</button>
+    <button class="nav-link" id="nl-admin" onclick="A.nav('admin')" style="display:none">Admin</button>
+    <span class="nav-user" id="nav-username"></span>
+    <button class="nav-logout" onclick="A.logout()">Sair</button>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+<div id="screen-login" style="display:flex">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-icon">iF</div>
+      <div class="login-title">AvD iFood</div>
+      <div class="login-sub">Avaliação de Desempenho 360°</div>
+    </div>
+    <div id="login-error" class="alert alert-error" style="display:none"></div>
+    <div class="form-group">
+      <label class="label">Email</label>
+      <input class="input" type="email" id="login-email" placeholder="seu@ifood.com.br" onkeydown="if(event.key==='Enter')A.doLogin()">
+    </div>
+    <div class="form-group">
+      <label class="label">Senha</label>
+      <input class="input" type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')A.doLogin()">
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="A.doLogin()" id="login-btn">Entrar</button>
+    <div class="demo-hints">
+      <p>Contas de demonstração (senha: <b>ifood123</b>)</p>
+      <div class="demo-row"><span class="demo-email" onclick="A.fillLogin('admin@ifood.com.br')">admin@ifood.com.br</span><span>Admin</span></div>
+      <div class="demo-row"><span class="demo-email" onclick="A.fillLogin('lider.produto@ifood.com.br')">lider.produto@ifood.com.br</span><span>Líder</span></div>
+      <div class="demo-row"><span class="demo-email" onclick="A.fillLogin('ana.lima@ifood.com.br')">ana.lima@ifood.com.br</span><span>Colaborador</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="screen-dashboard" class="screen">
+  <div class="container">
+    <div class="flex-between" style="margin-bottom:20px">
+      <div>
+        <h1 id="dash-greeting" style="font-size:22px;font-weight:900"></h1>
+        <p class="text-muted" style="margin-top:2px">Suas avaliações do ciclo ativo</p>
+      </div>
+    </div>
+    <!-- Stats -->
+    <div class="grid-4" style="margin-bottom:20px" id="dash-stats"></div>
+    <!-- Progress -->
+    <div class="card card-sm" style="margin-bottom:20px">
+      <div class="flex-between" style="margin-bottom:8px">
+        <span style="font-size:13px;font-weight:600;color:#374151">Progresso do ciclo</span>
+        <span id="dash-pct" style="font-size:13px;font-weight:800;color:#E5302F"></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="dash-progress" style="background:#E5302F"></div></div>
+    </div>
+    <!-- Scale ref -->
+    <div class="card card-sm" style="margin-bottom:20px">
+      <p style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Escala de Avaliação</p>
+      <div style="display:flex;flex-wrap:wrap;gap:6px" id="scale-ref"></div>
+    </div>
+    <!-- Pending -->
+    <div id="dash-pending"></div>
+    <!-- Done -->
+    <div id="dash-done"></div>
+  </div>
+</div>
+
+<!-- EVALUATE -->
+<div id="screen-evaluate" class="screen">
+  <div class="container">
+    <div class="card" style="margin-bottom:16px" id="eval-header"></div>
+    <div class="dim-tabs" id="dim-tabs"></div>
+    <div id="eval-attrs"></div>
+    <div class="card" style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div id="eval-status-msg" style="font-size:13px;font-weight:600"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" onclick="A.nav('dashboard')">← Voltar</button>
+        <button class="btn btn-primary" id="eval-submit-btn" onclick="A.submitEval()" disabled>Enviar Avaliação</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ONA -->
+<div id="screen-ona" class="screen">
+  <div class="container">
+    <div class="flex-between" style="margin-bottom:8px">
+      <div>
+        <h2 style="font-size:20px;font-weight:900">Rede de Colaboração (ONA)</h2>
+        <p class="text-muted" style="margin-top:2px">Mapeie com quem você mais colabora</p>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="A.saveONA()">💾 Salvar</button>
+    </div>
+    <div id="ona-saved-msg" class="alert alert-ok" style="display:none">✅ Mapeamento salvo com sucesso!</div>
+    <input class="input" placeholder="Buscar colaborador..." id="ona-search" oninput="A.renderONAList()" style="margin-bottom:12px">
+    <div id="ona-list" class="gap-3"></div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="screen-results" class="screen">
+  <div class="container">
+    <div class="flex-between" style="margin-bottom:20px">
+      <div>
+        <h2 style="font-size:20px;font-weight:900">Meus Resultados</h2>
+        <p class="text-muted" style="margin-top:2px">Visão consolidada das avaliações recebidas</p>
+      </div>
+      <select class="input" style="width:auto;font-size:13px" id="results-user-sel" onchange="A.renderResults()" ></select>
+    </div>
+    <div id="results-content"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" class="screen">
+  <div class="container">
+    <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">Painel Admin</h2>
+    <!-- Tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <button class="btn btn-primary btn-sm" onclick="A.adminTab('overview')" id="atab-overview">Visão Geral</button>
+      <button class="btn btn-outline btn-sm" onclick="A.adminTab('ona-graph')" id="atab-ona-graph">Grafo ONA</button>
+    </div>
+    <div id="admin-content"></div>
+  </div>
+</div>
+
+<script>
+// =============================================
+// CULTURE DATA
+// =============================================
+const SCALE = [
+  {v:1,label:'ESTACIONADO',desc:'Desconectado com o destino final!',color:'#DC2626',bg:'#FEE2E2'},
+  {v:2,label:'AJUSTANDO A ROTA',desc:'Foco em otimizar o trajeto!',color:'#EA580C',bg:'#FFEDD5'},
+  {v:3,label:'NA ROTA',desc:'Parabéns! No caminho certo!',color:'#D97706',bg:'#FEF3C7'},
+  {v:4,label:'BRILHOU NA ENTREGA',desc:'Surpreendendo ao longo da jornada!',color:'#16A34A',bg:'#DCFCE7'},
+  {v:5,label:'VOANDO ALTO',desc:'Constantemente muito acima do esperado!',color:'#15803D',bg:'#BBF7D0'},
+];
+
+const DIMS = {
+  CULTURA:{label:'Cultura (JiT)',color:'#7C3AED',bg:'#F3F0FF',attrs:[
+    {k:'SONHE_GRANDE',l:'Sonhe Grande',d:'Seja movido por propósito e apetite constante. Transforma ideias ambiciosas em ações que geram resultados.'},
+    {k:'CONFLITOS_PRODUTIVOS',l:'Conflitos Produtivos',d:'Encare a verdade de frente. Fala com honestidade, dá feedbacks construtivos com respeito e escuta ativa.'},
+    {k:'MENTALIDADE_DONO',l:'Mentalidade de Dono',d:'Pensa no iFood em primeiro lugar. Age com ética, autonomia e foco em resultados.'},
+    {k:'AMBIDESTRIA',l:'Ambidestria',d:'Opera com eficiência e disrupção ao mesmo tempo. Cria soluções escaláveis que funcionam hoje e constroem o futuro.'},
+    {k:'AGIL',l:'Ágil: Falhe Rápido e Aprenda',d:'Aprende fazendo. Testa, erra, corrige rápido e mantém o ritmo — sem medo de ajustar a rota.'},
+    {k:'PRIORIZE',l:'Priorize 80/20',d:'Foca no essencial. Desomplica o caminho e transforma problemas em soluções que geram resultados de impacto.'},
+    {k:'GENTE',l:'Gente',d:'Acredita na força das pessoas. Valoriza equidade e diversidade — de pessoas, trajetórias e ideias.'},
+  ]},
+  PERFORMANCE:{label:'Performance',color:'#E5302F',bg:'#FDE8E8',attrs:[
+    {k:'CONSISTENCIA',l:'Consistência das Entregas',d:'Entrega de forma consistente, cumprindo prazos e compromissos com qualidade.'},
+    {k:'IMPACTO',l:'Impacto das Entregas',d:'Gera impacto real e relevante para o negócio, time e ecossistema com suas entregas.'},
+    {k:'QUALIDADE',l:'Qualidade das Entregas',d:'Entrega com alto padrão de qualidade, atenção ao detalhe e cuidado com a excelência.'},
+  ]},
+  IA:{label:'IA — ExcelêncIA',color:'#0EA5E9',bg:'#E0F2FE',attrs:[
+    {k:'IA_USA',l:'Experimenta e Usa IA Regularmente',d:'Entende, experimenta e usa IA no dia a dia. Trata IA como ferramenta transformadora, não apenas de produtividade.'},
+    {k:'IA_MULT',l:'IA como Multiplicador de Força',d:'Usa IA para potencializar resultados do time, entregando produtos melhores e mais rápidos.'},
+    {k:'IA_CORE',l:'IA no Centro do Trabalho/Produto',d:'Incorpora IA no core do seu trabalho ou produto — não apenas em features incrementais.'},
+    {k:'IA_FUTURO',l:'Constrói para a IA do Futuro',d:'Projeta soluções pensando em capacidades de IA que ainda estão evoluindo, com visão de longo prazo.'},
+  ]},
+  LIDERANCA:{label:'Liderança iFood',color:'#D97706',bg:'#FEF3C7',attrs:[
+    {k:'TIME',l:'Construa um Time Melhor que Você',d:'É exemplo. Garante pessoas certas nos lugares certos. Constrói a próxima geração de líderes. Cuida e desafia muito.'},
+    {k:'CULTURA',l:'Não Negocie Cultura',d:'Toma decisões difíceis e rápidas. Não permite ninguém jogando contra. Dá feedbacks e não é bonzinho.'},
+    {k:'AGREEMENT',l:'Garanta High Quality Agreement',d:'Supera frustrações e ego. Entende a direção, comunica e engaja o time. iFood em 1º lugar.'},
+    {k:'FRONT',l:'Assuma o Front',d:'Pega o problema e resolve, não repassa. A melhor forma de quebrar silos é agindo.'},
+    {k:'PARANOICO',l:'Seja Paranoico',d:'Busca fanaticamente a eficiência. Olha para o time com a mesma obsessão que olha para o mapa estratégico.'},
+  ]},
+};
+
+const TYPE_LABELS = {SELF:'Autoavaliação',PEER:'Par',SUBORDINATE:'Liderado',LEADER:'Líder'};
+const TYPE_COLORS = {SELF:'#7C3AED',PEER:'#0EA5E9',SUBORDINATE:'#16A34A',LEADER:'#E5302F'};
+
+// =============================================
+// INITIAL DATA
+// =============================================
+function buildInitialState() {
+  const pw = 'ifood123';
+  const users = [
+    {id:'u0',name:'Admin RH',email:'admin@ifood.com.br',password:pw,role:'ADMIN',dept:'RH',job:'HR Business Partner',isLeader:true,mgr:null},
+    {id:'u1',name:'Líder Produto',email:'lider.produto@ifood.com.br',password:pw,role:'LIDER',dept:'Produto',job:'Head de Produto',isLeader:true,mgr:null},
+    {id:'u2',name:'Líder Engenharia',email:'lider.eng@ifood.com.br',password:pw,role:'LIDER',dept:'Engenharia',job:'Engineering Manager',isLeader:true,mgr:null},
+    {id:'u3',name:'Líder Dados',email:'lider.dados@ifood.com.br',password:pw,role:'LIDER',dept:'Dados',job:'Head de Dados',isLeader:true,mgr:null},
+    {id:'u4',name:'Ana Lima',email:'ana.lima@ifood.com.br',password:pw,role:'COLABORADOR',dept:'Produto',job:'Product Manager',isLeader:false,mgr:'u1'},
+    {id:'u5',name:'Bruno Costa',email:'bruno.costa@ifood.com.br',password:pw,role:'COLABORADOR',dept:'Produto',job:'Product Owner',isLeader:false,mgr:'u1'},
+    {id:'u6',name:'Carla Santos',email:'carla.santos@ifood.com.br',password:pw,role:'COLABORADOR',dept:'Produto',job:'Associate PM',isLeader:false,mgr:'u1'},
+    {id:'u7',name:'Diego Alves',email:'diego.alves@ifood.com.br',password:pw,role:'COLABORADOR',dept:'Engenharia',job:'Software Engineer',isLeader:false,mgr:'u2'},
+    {id:'u8',name:'Elena Ramos',email:'elena.ramos@ifood.com.br',password:pw,role:'COLABORADOR',dept:'Engenharia',job:'Senior Engineer',isLeader:false,mgr:'u2'},
+    {id:'u9',name:'Fabio Rocha',email:'fabio.rocha@ifood.com.br',password:pw,role:'COLABORADOR',dept:'Engenharia',job:'Tech Lead',isLeader:false,mgr:'u2'},
+    {id:'u10',name:'Gabi Mendes',email:'gabi.mendes@ifood.com.br',password:pw,role:'COLABORADOR',dept:'Dados',job:'Data Scientist',isLeader:false,mgr:'u3'},
+    {id:'u11',name:'Henrique Faria',email:'henrique.faria@ifood.com.br',password:pw,role:'COLABORADOR',dept:'Dados',job:'Data Analyst',isLeader:false,mgr:'u3'},
+    {id:'u12',name:'Isabela Torres',email:'isabela.torres@ifood.com.br',password:pw,role:'COLABORADOR',dept:'Dados',job:'ML Engineer',isLeader:false,mgr:'u3'},
+  ];
+
+  const cycle = {id:'c1',name:'AvD 2025 — 1º Semestre',status:'ACTIVE',start:'2025-01-01',end:'2025-06-30'};
+
+  const evals = [];
+  let eid = 1;
+  for (const u of users) {
+    // Self
+    evals.push({id:'e'+(eid++),cycleId:'c1',evalId:u.id,evaleeId:u.id,type:'SELF',status:'PENDING'});
+    // Peers
+    const peers = users.filter(p=>p.id!==u.id && p.dept===u.dept).slice(0,2);
+    for (const p of peers)
+      evals.push({id:'e'+(eid++),cycleId:'c1',evalId:u.id,evaleeId:p.id,type:'PEER',status:'PENDING'});
+    // Evaluate manager
+    if (u.mgr)
+      evals.push({id:'e'+(eid++),cycleId:'c1',evalId:u.id,evaleeId:u.mgr,type:'LEADER',status:'PENDING'});
+    // Leaders evaluate reports
+    if (u.isLeader) {
+      for (const r of users.filter(x=>x.mgr===u.id))
+        evals.push({id:'e'+(eid++),cycleId:'c1',evalId:u.id,evaleeId:r.id,type:'SUBORDINATE',status:'PENDING'});
+    }
+  }
+  // Deduplicate
+  const seen = new Set();
+  const unique = evals.filter(e=>{
+    const k=e.evalId+'-'+e.evaleeId+'-'+e.type;
+    if(seen.has(k)) return false; seen.add(k); return true;
+  });
+
+  return {uid:null,users,cycles:[cycle],evals:unique,responses:[],onaResponses:[]};
+}
+
+// =============================================
+// APP
+// =============================================
+const A = {
+  S: null,          // state
+  evalCtx: null,    // current eval being filled {evalId, dim, responses}
+
+  // --- PERSISTENCE ---
+  load() {
+    const raw = localStorage.getItem('avd2');
+    this.S = raw ? JSON.parse(raw) : buildInitialState();
+  },
+  save() { localStorage.setItem('avd2', JSON.stringify(this.S)); },
+  reset() { localStorage.removeItem('avd2'); location.reload(); },
+
+  // --- HELPERS ---
+  user(id) { return this.S.users.find(u=>u.id===(id||this.S.uid)); },
+  me() { return this.user(this.S.uid); },
+  scale(v) { return SCALE.find(s=>s.v===v)||SCALE[2]; },
+  evalsFor(uid) { return this.S.evals.filter(e=>e.evalId===uid); },
+  evalee(e) { return this.user(e.evaleeId); },
+  responsesFor(evalId) { return this.S.responses.filter(r=>r.evalId===evalId); },
+  dimsFor(type, isLeader) {
+    const base = ['CULTURA','PERFORMANCE','IA'];
+    if (isLeader) base.push('LIDERANCA');
+    return base;
+  },
+  avgScore(items) {
+    if(!items.length) return null;
+    return items.reduce((s,i)=>s+i.score,0)/items.length;
+  },
+  initials(name) { return name.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase(); },
+
+  // --- AUTH ---
+  doLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pw = document.getElementById('login-password').value;
+    const u = this.S.users.find(x=>x.email===email && x.password===pw);
+    const err = document.getElementById('login-error');
+    if (!u) { err.textContent='Email ou senha inválidos.'; err.style.display='block'; return; }
+    err.style.display='none';
+    this.S.uid = u.id;
+    this.save();
+    this.nav('dashboard');
+  },
+  fillLogin(email) {
+    document.getElementById('login-email').value = email;
+    document.getElementById('login-password').value = 'ifood123';
+  },
+  logout() { this.S.uid=null; this.save(); this.nav('login'); },
+
+  // --- NAVIGATION ---
+  nav(screen, data={}) {
+    document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
+    const nb = document.getElementById('navbar');
+    if (screen==='login') {
+      nb.style.display='none';
+      document.getElementById('screen-login').style.display='flex';
+      return;
+    }
+    nb.style.display='block';
+    // Update active nav
+    ['dashboard','ona','results','admin'].forEach(n=>{
+      const el = document.getElementById('nl-'+n);
+      if(el) el.className='nav-link'+(screen===n?' active':'');
+    });
+    document.getElementById('nav-username').textContent = this.me()?.name||'';
+    document.getElementById('nl-admin').style.display = this.me()?.role==='ADMIN'?'block':'none';
+
+    document.getElementById('screen-'+screen).style.display='block';
+    if (screen==='dashboard') this.renderDashboard();
+    else if (screen==='evaluate') this.renderEvaluate(data.id);
+    else if (screen==='results') this.renderResults();
+    else if (screen==='ona') this.renderONA();
+    else if (screen==='admin') { this.renderAdmin('overview'); }
+  },
+
+  // =============================================
+  // DASHBOARD
+  // =============================================
+  renderDashboard() {
+    const me = this.me();
+    document.getElementById('dash-greeting').textContent = 'Olá, '+me.name.split(' ')[0]+'! 👋';
+
+    const myEvals = this.evalsFor(me.id);
+    const pending = myEvals.filter(e=>e.status!=='COMPLETED');
+    const done = myEvals.filter(e=>e.status==='COMPLETED');
+    const pct = myEvals.length ? Math.round(done.length/myEvals.length*100) : 0;
+
+    // Stats
+    document.getElementById('dash-stats').innerHTML = [
+      {l:'Total',v:myEvals.length,c:'#1A1A1A'},
+      {l:'Pendentes',v:pending.length,c:'#EA580C'},
+      {l:'Concluídas',v:done.length,c:'#16A34A'},
+      {l:'Progresso',v:pct+'%',c:'#E5302F'},
+    ].map(s=>`<div class="stat-card"><div class="stat-val" style="color:${s.c}">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join('');
+
+    document.getElementById('dash-pct').textContent = pct+'%';
+    document.getElementById('dash-progress').style.width = pct+'%';
+
+    // Scale ref
+    document.getElementById('scale-ref').innerHTML = SCALE.map(s=>
+      `<span class="badge" style="background:${s.bg};color:${s.color}">${s.v} — ${s.label}</span>`
+    ).join('');
+
+    // Pending list
+    const pendingEl = document.getElementById('dash-pending');
+    if (pending.length) {
+      pendingEl.innerHTML = `<div class="section-title" style="margin-top:8px">Pendentes (${pending.length})</div>`+
+        `<div class="gap-3">`+pending.map(e=>{
+          const ee = this.evalee(e);
+          const tc = TYPE_COLORS[e.type];
+          return `<div class="eval-item" onclick="A.nav('evaluate',{id:'${e.id}'})">
+            <div class="eval-avatar" style="background:${tc}">${this.initials(ee.name)}</div>
+            <div class="eval-info">
+              <div class="eval-name">${ee.name}</div>
+              <div class="eval-sub">${ee.job} · ${ee.dept}</div>
+            </div>
+            <span class="badge" style="background:${tc};color:#fff">${TYPE_LABELS[e.type]}</span>
+            <span style="color:#D1D5DB;margin-left:4px">›</span>
+          </div>`;
+        }).join('')+`</div>`;
+    } else {
+      pendingEl.innerHTML = `<div class="empty"><div class="empty-icon">🎉</div><p>Todas as avaliações concluídas!</p></div>`;
+    }
+
+    // Done list
+    const doneEl = document.getElementById('dash-done');
+    if (done.length) {
+      doneEl.innerHTML = `<div class="section-title" style="margin-top:20px">Concluídas (${done.length})</div>`+
+        `<div class="gap-3">`+done.map(e=>{
+          const ee = this.evalee(e);
+          return `<div class="eval-item eval-done">
+            <div class="eval-avatar" style="background:#D1D5DB">✓</div>
+            <div class="eval-info"><div class="eval-name" style="color:#6B7280">${ee.name}</div>
+            <div class="eval-sub">${ee.job} · ${ee.dept}</div></div>
+            <span class="badge" style="background:#DCFCE7;color:#16A34A">Concluída</span>
+          </div>`;
+        }).join('')+`</div>`;
+    } else {
+      doneEl.innerHTML='';
+    }
+  },
+
+  // =============================================
+  // EVALUATE
+  // =============================================
+  renderEvaluate(evalId) {
+    const ev = this.S.evals.find(e=>e.id===evalId);
+    if (!ev) { this.nav('dashboard'); return; }
+    const ee = this.evalee(ev);
+    const dims = this.dimsFor(ev.type, ee.isLeader);
+
+    if (!this.evalCtx || this.evalCtx.evalId !== evalId) {
+      const existing = {};
+      for (const r of this.responsesFor(evalId))
+        existing[r.dim+'::'+r.attr] = {score:r.score, just:r.just||''};
+      this.evalCtx = {evalId, dim: dims[0], responses: existing};
+    }
+
+    // Header
+    const tc = TYPE_COLORS[ev.type];
+    document.getElementById('eval-header').innerHTML = `
+      <div style="display:flex;align-items:start;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <span class="badge" style="background:${tc};color:#fff">${TYPE_LABELS[ev.type]}</span>
+          <div style="font-size:18px;font-weight:900;margin-top:8px">${ee.name}</div>
+          <div class="text-muted">${ee.job} · ${ee.dept}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="text-muted" style="font-size:12px">Preenchidos</div>
+          <div style="font-size:22px;font-weight:900;color:#E5302F">${this._countFilled(evalId,dims)}/${this._countTotal(dims)}</div>
+        </div>
+      </div>`;
+
+    // Dim tabs
+    document.getElementById('dim-tabs').innerHTML = dims.map(d=>{
+      const cfg = DIMS[d];
+      const filled = this._countFilledDim(evalId,d);
+      const total = cfg.attrs.length;
+      const isActive = this.evalCtx.dim===d;
+      return `<div class="dim-tab" onclick="A.switchDim('${d}')"
+        style="border-color:${cfg.color};background:${isActive?cfg.color:'#fff'};color:${isActive?'#fff':cfg.color}">
+        ${cfg.label} (${filled}/${total})
+      </div>`;
+    }).join('');
+
+    this._renderAttrs(evalId, dims);
+    this._updateSubmitBtn(evalId, dims);
+  },
+
+  switchDim(dim) {
+    this.evalCtx.dim = dim;
+    const ev = this.S.evals.find(e=>e.id===this.evalCtx.evalId);
+    const ee = this.evalee(ev);
+    const dims = this.dimsFor(ev.type, ee.isLeader);
+    // Re-render tabs + attrs
+    const tabs = document.getElementById('dim-tabs');
+    tabs.querySelectorAll('.dim-tab').forEach((tab,i)=>{
+      const d = dims[i];
+      const cfg = DIMS[d];
+      const isActive = d===dim;
+      tab.style.background = isActive?cfg.color:'#fff';
+      tab.style.color = isActive?'#fff':cfg.color;
+    });
+    this._renderAttrs(this.evalCtx.evalId, dims);
+  },
+
+  _countFilledDim(evalId, dim) {
+    return DIMS[dim].attrs.filter(a=>(this.evalCtx.responses[dim+'::'+a.k]?.score||0)>0).length;
+  },
+  _countFilled(evalId, dims) { return dims.reduce((s,d)=>s+this._countFilledDim(evalId,d),0); },
+  _countTotal(dims) { return dims.reduce((s,d)=>s+DIMS[d].attrs.length,0); },
+
+  _renderAttrs(evalId, dims) {
+    const d = this.evalCtx.dim;
+    const cfg = DIMS[d];
+    document.getElementById('eval-attrs').innerHTML = cfg.attrs.map(attr=>{
+      const key = d+'::'+attr.k;
+      const cur = this.evalCtx.responses[key]||{score:0,just:''};
+      const scaleBtns = SCALE.map(s=>`
+        <div class="scale-btn" onclick="A.setScore('${d}','${attr.k}',${s.v})"
+          style="border-color:${s.color};background:${cur.score===s.v?s.color:s.bg};color:${cur.score===s.v?'#fff':s.color}">
+          <div style="font-size:16px;font-weight:900">${s.v}</div>
+          ${s.label}
+        </div>`).join('');
+      return `<div class="card" style="margin-bottom:12px;border-left:4px solid ${cfg.color}">
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px">${attr.l}</div>
+        <div class="text-muted" style="margin-bottom:12px">${attr.d}</div>
+        <div class="scale-grid" style="margin-bottom:10px">${scaleBtns}</div>
+        <textarea class="input" rows="2" placeholder="Justificativa com exemplos concretos (opcional)..."
+          oninput="A.setJust('${d}','${attr.k}',this.value)"
+          style="resize:none;font-size:13px">${cur.just||''}</textarea>
+      </div>`;
+    }).join('');
+  },
+
+  setScore(dim, attr, score) {
+    const key = dim+'::'+attr;
+    if (!this.evalCtx.responses[key]) this.evalCtx.responses[key]={score:0,just:''};
+    this.evalCtx.responses[key].score = score;
+    // Re-render just that attribute's scale buttons
+    const ev = this.S.evals.find(e=>e.id===this.evalCtx.evalId);
+    const ee = this.evalee(ev);
+    const dims = this.dimsFor(ev.type, ee.isLeader);
+    this._renderAttrs(this.evalCtx.evalId, dims);
+    this._updateSubmitBtn(this.evalCtx.evalId, dims);
+    // Update filled count on tab
+    const tabIdx = dims.indexOf(dim);
+    const tabs = document.getElementById('dim-tabs').children;
+    if (tabs[tabIdx]) {
+      const cfg = DIMS[dim];
+      tabs[tabIdx].textContent = cfg.label+' ('+this._countFilledDim(this.evalCtx.evalId,dim)+'/'+cfg.attrs.length+')';
+    }
+    // Update header count
+    const hdr = document.getElementById('eval-header').querySelector('[style*="22px"]');
+    if(hdr) hdr.textContent = this._countFilled(this.evalCtx.evalId,dims)+'/'+this._countTotal(dims);
+  },
+
+  setJust(dim, attr, val) {
+    const key = dim+'::'+attr;
+    if (!this.evalCtx.responses[key]) this.evalCtx.responses[key]={score:0,just:''};
+    this.evalCtx.responses[key].just = val;
+  },
+
+  _updateSubmitBtn(evalId, dims) {
+    const allFilled = dims.every(d=>DIMS[d].attrs.every(a=>(this.evalCtx.responses[d+'::'+a.k]?.score||0)>0));
+    const btn = document.getElementById('eval-submit-btn');
+    const msg = document.getElementById('eval-status-msg');
+    btn.disabled = !allFilled;
+    if (allFilled) {
+      msg.textContent = '✅ Todos os atributos preenchidos!';
+      msg.style.color = '#16A34A';
+    } else {
+      const filled = this._countFilled(evalId, dims);
+      const total = this._countTotal(dims);
+      msg.textContent = `⚠️ ${filled}/${total} atributos preenchidos`;
+      msg.style.color = '#EA580C';
+    }
+  },
+
+  submitEval() {
+    const {evalId, responses} = this.evalCtx;
+    // Save responses
+    this.S.responses = this.S.responses.filter(r=>r.evalId!==evalId);
+    for (const [key,val] of Object.entries(responses)) {
+      if (val.score>0) {
+        const [dim,attr] = key.split('::');
+        this.S.responses.push({evalId, dim, attr, score:val.score, just:val.just||''});
+      }
+    }
+    // Mark done
+    const ev = this.S.evals.find(e=>e.id===evalId);
+    ev.status = 'COMPLETED';
+    ev.completedAt = new Date().toISOString();
+    this.evalCtx = null;
+    this.save();
+    this.nav('dashboard');
+  },
+
+  // =============================================
+  // ONA
+  // =============================================
+  renderONA() {
+    this.renderONAList();
+  },
+
+  renderONAList() {
+    const me = this.me();
+    const q = (document.getElementById('ona-search')?.value||'').toLowerCase();
+    const others = this.S.users.filter(u=>u.id!==me.id && (
+      !q || u.name.toLowerCase().includes(q) || u.dept.toLowerCase().includes(q)
+    ));
+    const cycle = this.S.cycles[0];
+
+    document.getElementById('ona-list').innerHTML = others.map(u=>{
+      const existing = this.S.onaResponses.find(r=>r.cycleId===cycle.id && r.fromId===me.id && r.toId===u.id);
+      const freq = existing?.freq||0;
+      const inf = existing?.inf||0;
+      const types = existing?.types||[];
+      const hasMapped = freq>0;
+      const freqLabels=['Raramente','Mensal','Semanal','Frequente','Diário'];
+      const infLabels=['Nenhuma','Baixa','Moderada','Alta','Muito Alta'];
+      const collabTypes=['Projetos','Decisões','Aprendizado','Suporte'];
+
+      return `<div class="ona-card ${hasMapped?'active':''}" id="ona-${u.id}">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div class="eval-avatar" style="background:#E5302F;width:36px;height:36px;font-size:11px">${this.initials(u.name)}</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:14px">${u.name}</div>
+            <div class="text-muted">${u.job} · ${u.dept}</div>
+          </div>
+          ${hasMapped?`<span class="badge" style="background:#DCFCE7;color:#16A34A">Mapeado</span>`:''}
+        </div>
+        <div class="grid-2" style="margin-bottom:10px">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:6px">Frequência de colaboração</div>
+            <div class="freq-btns">${[1,2,3,4,5].map(i=>`<button class="freq-btn${freq===i?' sel':''}" onclick="A.setONA('${u.id}','freq',${i})" title="${freqLabels[i-1]}">${i}</button>`).join('')}</div>
+            <div style="font-size:11px;color:#9CA3AF;margin-top:3px">${freq?freqLabels[freq-1]:'Selecione...'}</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:6px">Influência no seu trabalho</div>
+            <div class="freq-btns">${[1,2,3,4,5].map(i=>`<button class="inf-btn${inf===i?' sel':''}" onclick="A.setONA('${u.id}','inf',${i})" title="${infLabels[i-1]}">${i}</button>`).join('')}</div>
+            <div style="font-size:11px;color:#9CA3AF;margin-top:3px">${inf?infLabels[inf-1]:'Selecione...'}</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:6px">Tipo de colaboração</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">${collabTypes.map(t=>`<button class="type-btn${types.includes(t)?' sel':''}" onclick="A.toggleONAType('${u.id}','${t}')">${t}</button>`).join('')}</div>
+        </div>
+      </div>`;
+    }).join('');
+  },
+
+  setONA(toId, field, val) {
+    const me = this.me();
+    const cycle = this.S.cycles[0];
+    let r = this.S.onaResponses.find(x=>x.cycleId===cycle.id&&x.fromId===me.id&&x.toId===toId);
+    if (!r) {
+      r = {cycleId:cycle.id,fromId:me.id,toId,freq:0,inf:0,types:[]};
+      this.S.onaResponses.push(r);
+    }
+    r[field] = val;
+    this.save();
+    this.renderONAList();
+  },
+
+  toggleONAType(toId, type) {
+    const me = this.me();
+    const cycle = this.S.cycles[0];
+    let r = this.S.onaResponses.find(x=>x.cycleId===cycle.id&&x.fromId===me.id&&x.toId===toId);
+    if (!r) {
+      r = {cycleId:cycle.id,fromId:me.id,toId,freq:0,inf:0,types:[]};
+      this.S.onaResponses.push(r);
+    }
+    r.types = r.types.includes(type) ? r.types.filter(t=>t!==type) : [...r.types,type];
+    this.save();
+    this.renderONAList();
+  },
+
+  saveONA() {
+    this.save();
+    const msg = document.getElementById('ona-saved-msg');
+    msg.style.display='block';
+    setTimeout(()=>msg.style.display='none', 3000);
+  },
+
+  // =============================================
+  // RESULTS
+  // =============================================
+  renderResults() {
+    const me = this.me();
+    const sel = document.getElementById('results-user-sel');
+
+    // Populate user selector
+    let targetUsers = [me];
+    if (me.role==='ADMIN' || me.isLeader) targetUsers = this.S.users;
+    sel.innerHTML = targetUsers.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+    if (!sel.value || !targetUsers.find(u=>u.id===sel.value)) sel.value = me.id;
+
+    const targetId = sel.value || me.id;
+    const target = this.user(targetId);
+
+    // Collect completed evaluations received by target
+    const received = this.S.evals.filter(e=>e.evaleeId===targetId && e.status==='COMPLETED');
+
+    const content = document.getElementById('results-content');
+
+    if (!received.length) {
+      content.innerHTML = `<div class="empty"><div class="empty-icon">📊</div><p>Nenhum resultado ainda.<br>As avaliações precisam ser concluídas primeiro.</p></div>`;
+      return;
+    }
+
+    // Aggregate by dimension
+    const aggr = {}; // {dim: {attr: {type: [scores]}}}
+    for (const ev of received) {
+      const rr = this.responsesFor(ev.id);
+      for (const r of rr) {
+        if(!aggr[r.dim]) aggr[r.dim]={};
+        if(!aggr[r.dim][r.attr]) aggr[r.dim][r.attr]={};
+        if(!aggr[r.dim][r.attr][ev.type]) aggr[r.dim][r.attr][ev.type]=[];
+        aggr[r.dim][r.attr][ev.type].push(r.score);
+      }
+    }
+
+    // Dimension averages for radar
+    const dimAvgs = {};
+    for (const [dim,attrs] of Object.entries(aggr)) {
+      const allScores = Object.values(attrs).flatMap(types=>Object.values(types).flat());
+      if(allScores.length) dimAvgs[dim] = allScores.reduce((a,b)=>a+b,0)/allScores.length;
+    }
+
+    // Overview cards
+    const dimKeys = Object.keys(DIMS).filter(d=>aggr[d]);
+    const overviewCards = dimKeys.map(d=>{
+      const avg = dimAvgs[d];
+      const sc = this.scale(Math.round(avg));
+      return `<div class="stat-card">
+        <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">${DIMS[d].label}</div>
+        <div class="stat-val" style="color:${sc.color}">${avg.toFixed(1)}</div>
+        <div style="font-size:11px;font-weight:700;color:${sc.color};margin-top:4px">${sc.label}</div>
+      </div>`;
+    }).join('');
+
+    // Radar chart SVG
+    const radar = this._buildRadar(dimAvgs);
+
+    // Dimension tabs (using simple select for results)
+    const activeDim = this._resultsDim || dimKeys[0];
+    this._resultsDim = activeDim;
+
+    const dimTabs = `<div class="dim-tabs">${dimKeys.map(d=>`
+      <div class="dim-tab" onclick="A._resultsDim='${d}';A.renderResults()"
+        style="border-color:${DIMS[d].color};background:${activeDim===d?DIMS[d].color:'#fff'};color:${activeDim===d?'#fff':DIMS[d].color}">
+        ${DIMS[d].label}
+      </div>`).join('')}</div>`;
+
+    // Attribute breakdown for active dim
+    const attrHtml = aggr[activeDim] ? Object.entries(aggr[activeDim]).map(([attr,types])=>{
+      const attrCfg = DIMS[activeDim].attrs.find(a=>a.k===attr);
+      const allScores = Object.values(types).flat();
+      const overall = allScores.reduce((a,b)=>a+b,0)/allScores.length;
+      const sc = this.scale(Math.round(overall));
+      const typeBars = Object.entries(types).map(([type,scores])=>{
+        const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
+        const tc = TYPE_COLORS[type];
+        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span class="badge" style="background:${tc};color:#fff;min-width:72px;justify-content:center">${TYPE_LABELS[type]}</span>
+          <div style="flex:1;background:#F3F4F6;border-radius:99px;height:8px;overflow:hidden">
+            <div style="height:8px;border-radius:99px;background:${tc};width:${(avg/5)*100}%"></div>
+          </div>
+          <span style="font-size:13px;font-weight:700;min-width:28px;color:${tc}">${avg.toFixed(1)}</span>
+          <span style="font-size:11px;color:#9CA3AF">(${scores.length})</span>
+        </div>`;
+      }).join('');
+      return `<div class="result-attr">
+        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <div>
+            <div style="font-weight:700;font-size:14px">${attrCfg?.l||attr}</div>
+            <div class="text-muted" style="font-size:12px;margin-top:2px">${attrCfg?.d||''}</div>
+          </div>
+          <span class="badge" style="background:${sc.bg};color:${sc.color};font-size:13px;padding:4px 10px">${overall.toFixed(1)} — ${sc.label}</span>
+        </div>
+        ${typeBars}
+        <div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:${(overall/5)*100}%;background:${sc.color}"></div></div>
+      </div>`;
+    }).join('') : `<div class="empty"><div class="empty-icon">—</div><p>Sem dados para esta dimensão</p></div>`;
+
+    content.innerHTML = `
+      <div class="grid-4" style="margin-bottom:20px">${overviewCards||'<p class="text-muted">Sem dados</p>'}</div>
+      <div class="card" style="margin-bottom:20px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px">Visão 360° por Dimensão</div>
+        ${radar}
+      </div>
+      ${dimTabs}
+      ${attrHtml}
+    `;
+  },
+
+  _buildRadar(dimAvgs) {
+    const dims = Object.keys(DIMS).filter(d=>dimAvgs[d]!=null);
+    if (!dims.length) return '';
+    const N = dims.length;
+    const cx=180,cy=180,R=130,r=R;
+    const toXY=(i,val)=>{
+      const angle=(i/N)*2*Math.PI - Math.PI/2;
+      const d=(val/5)*r;
+      return [cx+d*Math.cos(angle), cy+d*Math.sin(angle)];
+    };
+    // Grid rings
+    let rings='';
+    for(let v=1;v<=5;v++){
+      const pts=dims.map((_,i)=>toXY(i,v).join(',')).join(' ');
+      rings+=`<polygon points="${pts}" fill="none" stroke="#E5E7EB" stroke-width="1"/>`;
+    }
+    // Axes
+    let axes='', labels='';
+    dims.forEach((d,i)=>{
+      const [x,y]=toXY(i,5.4);
+      const [ax,ay]=toXY(i,5);
+      axes+=`<line x1="${cx}" y1="${cy}" x2="${ax}" y2="${ay}" stroke="#E5E7EB" stroke-width="1"/>`;
+      const anchor = x<cx-5?'end':x>cx+5?'start':'middle';
+      labels+=`<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="10" fill="${DIMS[d].color}" font-weight="700">${DIMS[d].label}</text>`;
+    });
+    // Data polygon
+    const pts = dims.map((d,i)=>toXY(i,dimAvgs[d]||0).join(',')).join(' ');
+    const poly=`<polygon points="${pts}" fill="rgba(229,48,47,0.15)" stroke="#E5302F" stroke-width="2"/>`;
+    // Points
+    const dots = dims.map((d,i)=>{
+      const [x,y]=toXY(i,dimAvgs[d]||0);
+      return `<circle cx="${x}" cy="${y}" r="4" fill="#E5302F"/>`;
+    }).join('');
+
+    return `<div class="radar-wrap"><svg width="360" height="360" viewBox="0 0 360 360">
+      ${rings}${axes}${poly}${dots}${labels}
+    </svg></div>`;
+  },
+
+  // =============================================
+  // ADMIN
+  // =============================================
+  renderAdmin(tab) {
+    this._adminTab = tab || this._adminTab || 'overview';
+    ['overview','ona-graph'].forEach(t=>{
+      const btn = document.getElementById('atab-'+t);
+      if(btn){ btn.className=this._adminTab===t?'btn btn-primary btn-sm':'btn btn-outline btn-sm'; }
+    });
+    const c = document.getElementById('admin-content');
+    if (this._adminTab==='overview') this._renderAdminOverview(c);
+    else this._renderAdminONA(c);
+  },
+
+  adminTab(tab) { this._adminTab=tab; this.renderAdmin(tab); },
+
+  _renderAdminOverview(c) {
+    const users = this.S.users;
+    const byDept = {};
+    for(const u of users) byDept[u.dept]=(byDept[u.dept]||0)+1;
+    const deptColors={'Produto':'#E5302F','Engenharia':'#0EA5E9','Dados':'#7C3AED','RH':'#D97706'};
+
+    const total = this.S.evals.length;
+    const done = this.S.evals.filter(e=>e.status==='COMPLETED').length;
+    const pct = total?Math.round(done/total*100):0;
+
+    const totalONA = this.S.onaResponses.length;
+
+    c.innerHTML = `
+      <div class="grid-4" style="margin-bottom:20px">
+        ${[
+          {l:'Colaboradores',v:users.length,c:'#E5302F'},
+          {l:'Líderes',v:users.filter(u=>u.isLeader).length,c:'#D97706'},
+          {l:'Avaliações',v:total,c:'#0EA5E9'},
+          {l:'ONA Mapeados',v:totalONA,c:'#7C3AED'},
+        ].map(s=>`<div class="stat-card"><div class="stat-val" style="color:${s.c}">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join('')}
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-weight:700;margin-bottom:12px">Progresso do ciclo: ${pct}%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:#E5302F"></div></div>
+        <div class="text-muted" style="margin-top:6px">${done} de ${total} avaliações concluídas</div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-weight:700;margin-bottom:12px">Colaboradores por Departamento</div>
+        ${Object.entries(byDept).map(([dept,n])=>`
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <span style="font-size:13px;color:#374151;width:100px;flex-shrink:0">${dept}</span>
+            <div style="flex:1;background:#F3F4F6;border-radius:99px;height:12px;overflow:hidden">
+              <div style="height:12px;border-radius:99px;background:${deptColors[dept]||'#6B7280'};width:${(n/users.length)*100}%"></div>
+            </div>
+            <span style="font-size:13px;font-weight:700;color:#374151;width:20px">${n}</span>
+          </div>`).join('')}
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px">Todos os Colaboradores</div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Nome</th><th>Dept.</th><th>Cargo</th><th>Papel</th></tr></thead>
+            <tbody>${users.map(u=>`<tr>
+              <td style="font-weight:500">${u.name}</td>
+              <td style="color:#6B7280">${u.dept}</td>
+              <td style="color:#6B7280">${u.job}</td>
+              <td><span class="badge" style="background:${u.role==='ADMIN'?'#EDE9FE':u.isLeader?'#FEF3C7':'#E0F2FE'};color:${u.role==='ADMIN'?'#7C3AED':u.isLeader?'#D97706':'#0EA5E9'}">${u.role==='ADMIN'?'Admin':u.isLeader?'Líder':'Colaborador'}</span></td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;text-align:right">
+        <button class="btn btn-ghost" style="color:#DC2626;font-size:12px" onclick="if(confirm('Resetar todos os dados?')) A.reset()">⚠️ Resetar dados</button>
+      </div>
+    `;
+  },
+
+  _renderAdminONA(c) {
+    const responses = this.S.onaResponses;
+    if (!responses.length) {
+      c.innerHTML = `<div class="empty"><div class="empty-icon">🕸️</div><p>Nenhum dado ONA ainda.<br>Os colaboradores precisam preencher o mapeamento de rede.</p></div>`;
+      return;
+    }
+
+    // Count connections received
+    const connCount = {};
+    for(const r of responses) connCount[r.toId]=(connCount[r.toId]||0)+1;
+    const top = Object.entries(connCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
+
+    // SVG network graph
+    const nodeIds = [...new Set(responses.flatMap(r=>[r.fromId,r.toId]))].slice(0,20);
+    const N = nodeIds.length;
+    const cx=200,cy=200,R=150;
+    const nodes = nodeIds.map((id,i)=>{
+      const angle=(i/N)*2*Math.PI;
+      return {id, x:cx+R*Math.cos(angle), y:cy+R*Math.sin(angle), user:this.user(id)};
+    });
+    const nodeMap = Object.fromEntries(nodes.map(n=>[n.id,n]));
+    const deptColors={'Produto':'#E5302F','Engenharia':'#0EA5E9','Dados':'#7C3AED','RH':'#D97706','Engenharia':'#0EA5E9'};
+
+    const edges = responses.slice(0,40).map(r=>{
+      const from=nodeMap[r.fromId], to=nodeMap[r.toId];
+      if(!from||!to) return '';
+      return `<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="rgba(229,48,47,${r.freq/10})" stroke-width="${r.inf/2||1}"/>`;
+    }).join('');
+
+    const dots = nodes.map(n=>{
+      const c=deptColors[n.user?.dept]||'#6B7280';
+      return `<circle cx="${n.x}" cy="${n.y}" r="7" fill="${c}" stroke="#fff" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y+20}" text-anchor="middle" font-size="8" fill="#374151">${n.user?.name.split(' ')[0]||''}</text>`;
+    }).join('');
+
+    c.innerHTML = `
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-weight:700;margin-bottom:4px">Grafo de Colaboração</div>
+        <div class="text-muted" style="margin-bottom:12px;font-size:12px">Espessura = influência · Opacidade = frequência</div>
+        <div style="overflow-x:auto">
+          <svg width="400" height="400" viewBox="0 0 400 400" style="max-width:100%">
+            ${edges}${dots}
+          </svg>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+          ${Object.entries(deptColors).map(([d,c])=>`<div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:${c}"></div><span style="font-size:11px;color:#6B7280">${d}</span></div>`).join('')}
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px">Top Conectores da Rede</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${top.map(([id,count])=>{
+            const u=this.user(id);
+            if(!u) return '';
+            const c=deptColors[u.dept]||'#6B7280';
+            return `<div style="display:flex;align-items:center;gap:10px;padding:10px;background:#F9FAFB;border-radius:10px">
+              <div class="eval-avatar" style="background:${c};width:34px;height:34px;font-size:11px">${this.initials(u.name)}</div>
+              <div style="flex:1">
+                <div style="font-weight:700;font-size:13px">${u.name}</div>
+                <div class="text-muted">${u.dept}</div>
+              </div>
+              <span style="font-size:16px;font-weight:900;color:#E5302F">${count} conexões</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  },
+
+  // =============================================
+  // BOOT
+  // =============================================
+  init() {
+    this.load();
+    if (this.S.uid) this.nav('dashboard');
+    else this.nav('login');
+  }
+};
+
+window.onload = () => A.init();
+</script>
+</body>
+</html>
